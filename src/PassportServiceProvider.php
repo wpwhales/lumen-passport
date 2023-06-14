@@ -5,6 +5,7 @@ namespace Dusterio\LumenPassport;
 use Dusterio\LumenPassport\Console\Commands\Purge;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Connection;
+use Laravel\Passport\Passport;
 
 /**
  * Class CustomQueueServiceProvider
@@ -19,6 +20,8 @@ class PassportServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
+
         $this->app->singleton(Connection::class, function() {
             return $this->app['db.connection'];
         });
@@ -39,6 +42,8 @@ class PassportServiceProvider extends ServiceProvider
      * @return void
      */
     public function register()
+
     {
+        Passport::ignoreRoutes();
     }
 }

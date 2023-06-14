@@ -22,17 +22,24 @@ class AccessTokenController extends \Laravel\Passport\Http\Controllers\AccessTok
      */
     public function issueToken(ServerRequestInterface $request)
     {
+
         $response = $this->withErrorHandling(function () use ($request) {
             $input = (array) $request->getParsedBody();
             $clientId = isset($input['client_id']) ? $input['client_id'] : null;
 
-            // Overwrite password grant at the last minute to add support for customized TTLs
+//             Overwrite password grant at the last minute to add support for customized TTLs
             $this->server->enableGrantType(
                 $this->makePasswordGrant(), LumenPassport::tokensExpireIn(null, $clientId)
             );
 
+
+
             return $this->server->respondToAccessTokenRequest($request, new Psr7Response);
         });
+
+
+        return $response;
+
 
         if ($response->getStatusCode() < 200 || $response->getStatusCode() > 299) {
             return $response;
@@ -41,6 +48,8 @@ class AccessTokenController extends \Laravel\Passport\Http\Controllers\AccessTok
         $payload = json_decode($response->getBody()->__toString(), true);
 
         if (isset($payload['access_token'])) {
+
+
             /* @deprecated the jwt property will be removed in a future Laravel Passport release */
             $token = $this->jwt->parse($payload['access_token']);
             if (method_exists($token, 'getClaim')) {

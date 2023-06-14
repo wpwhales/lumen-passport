@@ -35,8 +35,8 @@ class RouteRegistrar
     {
         $this->forAccessTokens();
         $this->forTransientTokens();
-        $this->forClients();
-        $this->forPersonalAccessTokens();
+//        $this->forClients();
+//        $this->forPersonalAccessTokens();
     }
 
     /**
@@ -59,11 +59,18 @@ class RouteRegistrar
      */
     public function forAccessTokens()
     {
-        $this->app->post('/token', $this->prefix('\Dusterio\LumenPassport\Http\Controllers\AccessTokenController@issueToken'));
+        $this->app->post('/token',
+
+            ["uses"=>$this->prefix('\Dusterio\LumenPassport\Http\Controllers\AccessTokenController@issueToken'),"withoutMiddleware"=>[\Laravel\Lumen\Middlewares\VerifyCsrfToken::class]]
+            );
 
         $this->app->group(['middleware' => ['auth']], function () {
             $this->app->get('/tokens', $this->prefix('AuthorizedAccessTokenController@forUser'));
-            $this->app->delete('/tokens/{tokenId}', $this->prefix('AuthorizedAccessTokenController@destroy'));
+            $this->app->delete(
+
+                '/tokens/{tokenId}',
+                ["uses"=>$this->prefix('AuthorizedAccessTokenController@destroy'),"withoutMiddleware"=>[\Laravel\Lumen\Middlewares\VerifyCsrfToken::class]]
+                );
         });
     }
 
@@ -76,7 +83,8 @@ class RouteRegistrar
     {
         $this->app->post('/token/refresh', [
             'middleware' => ['auth'],
-            'uses' => $this->prefix('TransientTokenController@refresh')
+            'uses' => $this->prefix('TransientTokenController@refresh'),
+            "withoutMiddleware"=>[\Laravel\Lumen\Middlewares\VerifyCsrfToken::class]
         ]);
     }
 
@@ -103,9 +111,10 @@ class RouteRegistrar
     public function forPersonalAccessTokens()
     {
         $this->app->group(['middleware' => ['auth']], function () {
+
             $this->app->get('/scopes', $this->prefix('ScopeController@all'));
             $this->app->get('/personal-access-tokens', $this->prefix('PersonalAccessTokenController@forUser'));
-            $this->app->post('/personal-access-tokens', $this->prefix('PersonalAccessTokenController@store'));
+            $this->app->post('/personal-access-tokens', ["uses"=>$this->prefix('PersonalAccessTokenController@store'),"withoutMiddleware"=>[\Laravel\Lumen\Middlewares\VerifyCsrfToken::class]]);
             $this->app->delete('/personal-access-tokens/{tokenId}', $this->prefix('PersonalAccessTokenController@destroy'));
         });
     }
