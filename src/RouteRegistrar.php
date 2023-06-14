@@ -35,6 +35,7 @@ class RouteRegistrar
     {
         $this->forAccessTokens();
         $this->forTransientTokens();
+
 //        $this->forClients();
 //        $this->forPersonalAccessTokens();
     }
@@ -59,6 +60,27 @@ class RouteRegistrar
      */
     public function forAccessTokens()
     {
+
+        $this->app->group([
+            'namespace' => '\Laravel\Passport\Http\Controllers',
+        ], function ($router) {
+            // Passport routes...
+            $this->app->get('/authorize', [
+                'uses' => 'AuthorizationController@authorize',
+                'as' => 'authorizations.authorize',
+                'middleware' => 'auth',
+            ]);
+            $this->app->post('/authorize', [
+                'uses' => 'ApproveAuthorizationController@approve',
+                'as' => 'authorizations.approve',
+            ]);
+
+            $this->app->delete('/authorize', [
+                'uses' => 'DenyAuthorizationController@deny',
+                'as' => 'authorizations.deny',
+            ]);
+
+        });
         $this->app->post('/token',
 
             ["uses"=>$this->prefix('\Dusterio\LumenPassport\Http\Controllers\AccessTokenController@issueToken'),"withoutMiddleware"=>[\Laravel\Lumen\Middlewares\VerifyCsrfToken::class]]
