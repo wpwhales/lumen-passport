@@ -67,17 +67,17 @@ class RouteRegistrar
             // Passport routes...
             $this->app->get('/authorize', [
                 'uses' => 'AuthorizationController@authorize',
-                'as' => 'authorizations.authorize',
+                'as' => 'passport.authorizations.authorize',
                 'middleware' => 'auth',
             ]);
             $this->app->post('/authorize', [
                 'uses' => 'ApproveAuthorizationController@approve',
-                'as' => 'authorizations.approve',
+                'as' => 'passport.authorizations.approve',
             ]);
 
             $this->app->delete('/authorize', [
                 'uses' => 'DenyAuthorizationController@deny',
-                'as' => 'authorizations.deny',
+                'as' => 'passport.authorizations.deny',
             ]);
 
         });
